@@ -1,0 +1,249 @@
+mysql> CREATE DATABASE Hospital_Management_System;
+
+mysql> USE Hospital_Management_System;
+
+
+1. PATIENTS -
+mysql> CREATE TABLE Patients (
+    ->     Patient_ID INT PRIMARY KEY,
+    ->     FullName VARCHAR(100) NOT NULL,
+    ->     DOB DATE,
+    ->     Gender VARCHAR(10),
+    ->     Phone VARCHAR(15),
+    ->     Email VARCHAR(100),
+    ->     Address VARCHAR(255),
+    ->     Insurance_No VARCHAR(50));
+
+mysql> INSERT INTO Patients
+    -> (Patient_ID, FullName, DOB, Gender, Phone, Email, Address, Insurance_No)
+    -> VALUES
+    -> (101,'Rahul Sharma','1998-05-12','Male','9876543210','rahul@gmail.com','Pune','INS1001'),
+    -> (102,'Sneha Patil','2000-08-22','Female','9876543211','sneha@gmail.com','Kolhapur','INS1002'),
+    -> (103,'Amit Joshi','1995-02-18','Male','9876543212','amit@gmail.com','Mumbai','INS1003'),
+    -> (104,'Priya Desai','1999-11-10','Female','9876543213','priya@gmail.com','Sangli','INS1004'),
+    -> (105,'Rohit Kulkarni','1997-07-05','Male','9876543214','rohit@gmail.com','Satara','INS1005');
+
+
+
+
+2. DOCTORS -
+mysql> CREATE TABLE Doctors (
+    ->     DoctorID INT PRIMARY KEY,
+    ->     Name VARCHAR(100) NOT NULL,
+    ->     Specialization VARCHAR(100),
+    ->     Phone VARCHAR(15),
+    ->     Email VARCHAR(100));
+
+mysql> INSERT INTO Doctors
+    -> (DoctorID, Name, Specialization, Phone, Email)
+    -> VALUES
+    -> (201,'Dr. Mehta','Cardiology','9876500001','mehta@hospital.com'),
+    -> (202,'Dr. Patil','Orthopedics','9876500002','patil@hospital.com'),
+    -> (203,'Dr. Shah','Neurology','9876500003','shah@hospital.com'),
+    -> (204,'Dr. Kulkarni','Dermatology','9876500004','kulkarni@hospital.com'),
+    -> (205,'Dr. Joshi','General Physician','9876500005','joshi@hospital.com');
+
+
+
+
+3. MEDICAL_HISTORY -
+mysql> CREATE TABLE Medical_History (
+    ->     History_ID INT PRIMARY KEY,
+    ->     Patient_ID INT NOT NULL,
+    ->     RecordDate DATE,
+    ->     Diagnosis VARCHAR(255),
+    ->     Treatment VARCHAR(255),
+    ->     Allergy VARCHAR(255),
+    ->
+    ->     CONSTRAINT fk_history_patient
+    ->     FOREIGN KEY (Patient_ID)
+    ->     REFERENCES Patients(Patient_ID));
+
+mysql> INSERT INTO Medical_History
+    -> (History_ID, Patient_ID, RecordDate, Diagnosis, Treatment, Allergy)
+    -> VALUES
+    -> (1,101,'2025-01-10','Hypertension','Medication','Penicillin'),
+    -> (2,102,'2025-01-12','Migraine','Painkillers','None'),
+    -> (3,103,'2025-01-15','Diabetes','Insulin','Dust'),
+    -> (4,104,'2025-01-18','Skin Infection','Ointment','None'),
+    -> (5,105,'2025-01-20','Fracture','Cast','None');
+
+
+
+
+4. ENCOUNTERS -
+mysql> CREATE TABLE Encounters (
+    ->     EncounterID INT PRIMARY KEY,
+    ->     PatientID INT NOT NULL,
+    ->     DoctorID INT NOT NULL,
+    ->     Date DATE,
+    ->     Status VARCHAR(50),
+    ->
+    ->     CONSTRAINT fk_enc_patient
+    ->     FOREIGN KEY (PatientID)
+    ->     REFERENCES Patients(Patient_ID),
+    ->
+    ->     CONSTRAINT fk_enc_doctor
+    ->     FOREIGN KEY (DoctorID)
+    ->     REFERENCES Doctors(DoctorID));
+
+mysql> INSERT INTO Encounters
+    -> (EncounterID, PatientID, DoctorID, Date, Status)
+    -> VALUES
+    -> (301,101,201,'2025-02-01','Completed'),
+    -> (302,102,205,'2025-02-02','Completed'),
+    -> (303,103,203,'2025-02-03','Pending'),
+    -> (304,104,204,'2025-02-04','Completed'),
+    -> (305,105,202,'2025-02-05','Scheduled');
+
+
+
+
+5. PROCEDURES -
+mysql> CREATE TABLE Procedures (
+    ->     ProcedureID INT PRIMARY KEY,
+    ->     ProcedureName VARCHAR(100),
+    ->     Notes VARCHAR(255));
+
+mysql> INSERT INTO Procedures
+    -> (ProcedureID, ProcedureName, Notes)
+    -> VALUES
+    -> (401,'ECG','Heart checkup'),
+    -> (402,'X-Ray','Bone scan'),
+    -> (403,'MRI','Brain scan'),
+    -> (404,'Skin Biopsy','Lab analysis'),
+    -> (405,'Blood Test','Routine test');
+
+
+
+
+6. ENCOUNTERS_PROCEDURE -
+mysql> CREATE TABLE Encounters_Procedure (
+    ->     EncounterID INT,
+    ->     ProcedureID INT,
+    ->     DoctorID INT,
+    ->     ProcedureDate DATE,
+    ->
+    ->     PRIMARY KEY (EncounterID, ProcedureID),
+    ->
+    ->     CONSTRAINT fk_ep_encounter
+    ->     FOREIGN KEY (EncounterID)
+    ->     REFERENCES Encounters(EncounterID),
+    ->
+    ->     CONSTRAINT fk_ep_procedure
+    ->     FOREIGN KEY (ProcedureID)
+    ->     REFERENCES Procedures(ProcedureID),
+    ->
+    ->     CONSTRAINT fk_ep_doctor
+    ->     FOREIGN KEY (DoctorID)
+    ->     REFERENCES Doctors(DoctorID));
+
+mysql> INSERT INTO Encounters_Procedure
+    -> (EncounterID, ProcedureID, DoctorID, ProcedureDate)
+    -> VALUES
+    -> (301,401,201,'2025-02-01'),
+    -> (302,405,205,'2025-02-02'),
+    -> (303,403,203,'2025-02-03'),
+    -> (304,404,204,'2025-02-04'),
+    -> (305,402,202,'2025-02-05');
+
+
+
+
+7. MEDICINES -
+mysql> CREATE TABLE Medicines (
+    ->     MedicineID INT PRIMARY KEY,
+    ->     MedicineName VARCHAR(100),
+    ->     GenericName VARCHAR(100),
+    ->     Strength VARCHAR(50),
+    ->     ManufactureDate DATE,
+    ->     ExpDate DATE);
+
+mysql> INSERT INTO Medicines
+    -> (MedicineID, MedicineName, GenericName, Strength, ManufactureDate, ExpDate)
+    -> VALUES
+    -> (501,'Crocin','Paracetamol','500mg','2025-01-01','2027-01-01'),
+    -> (502,'Azithral','Azithromycin','250mg','2025-01-01','2027-01-01'),
+    -> (503,'Metformin','Metformin','500mg','2025-01-01','2027-01-01'),
+    -> (504,'Cetirizine','Cetirizine','10mg','2025-01-01','2027-01-01'),
+    -> (505,'Dolo650','Paracetamol','650mg','2025-01-01','2027-01-01');
+
+
+
+
+8. PRESCRIPTIONS -
+mysql> CREATE TABLE Prescriptions (
+    ->     PrescriptionID INT PRIMARY KEY,
+    ->     EncounterID INT NOT NULL,
+    ->     DoctorID INT NOT NULL,
+    ->     MedicineID INT NOT NULL,
+    ->     Dosage VARCHAR(100),
+    ->     Instructions VARCHAR(255),
+    ->     DispenseDate DATE,
+    ->
+    ->     CONSTRAINT fk_pres_encounter
+    ->     FOREIGN KEY (EncounterID)
+    ->     REFERENCES Encounters(EncounterID),
+    ->
+    ->     CONSTRAINT fk_pres_doctor
+    ->     FOREIGN KEY (DoctorID)
+    ->     REFERENCES Doctors(DoctorID),
+    ->
+    ->     CONSTRAINT fk_pres_medicine
+    ->     FOREIGN KEY (MedicineID)
+    ->     REFERENCES Medicines(MedicineID));
+
+mysql> INSERT INTO Prescriptions
+    -> (PrescriptionID, EncounterID, DoctorID, MedicineID, Dosage, Instructions, DispenseDate)
+    -> VALUES
+    -> (601,301,201,501,'1 Tablet','After Breakfast','2025-02-01'),
+    -> (602,302,205,502,'2 Tablets','After Food','2025-02-02'),
+    -> (603,303,203,503,'1 Tablet','Before Sleep','2025-02-03'),
+    -> (604,304,204,504,'Apply Twice','External Use','2025-02-04'),
+    -> (605,305,202,505,'1 Tablet','Morning','2025-02-05');
+
+
+
+
+9. DIAGNOSTIC_TESTS -
+mysql> CREATE TABLE Diagnostic_Tests (
+    ->     TestID INT PRIMARY KEY,
+    ->     TestType VARCHAR(100));
+
+mysql> INSERT INTO Diagnostic_Tests
+    -> (TestID, TestType)
+    -> VALUES
+    -> (701,'Blood Test'),
+    -> (702,'ECG'),
+    -> (703,'MRI'),
+    -> (704,'X-Ray'),
+    -> (705,'Biopsy');
+
+
+
+
+10. REPORT -
+mysql> CREATE TABLE Report (
+    ->     TestID INT,
+    ->     EncounterID INT,
+    ->     TestDate DATE,
+    ->     Result VARCHAR(255),
+    ->
+    ->     PRIMARY KEY (TestID, EncounterID),
+    ->
+    ->     CONSTRAINT fk_report_test
+    ->     FOREIGN KEY (TestID)
+    ->     REFERENCES Diagnostic_Tests(TestID),
+    ->
+    ->     CONSTRAINT fk_report_encounter
+    ->     FOREIGN KEY (EncounterID)
+    ->     REFERENCES Encounters(EncounterID));
+
+mysql> INSERT INTO Report
+    -> (TestID, EncounterID, TestDate, Result)
+    -> VALUES
+    -> (701,302,'2025-02-02','Normal'),
+    -> (702,301,'2025-02-01','Mild Arrhythmia'),
+    -> (703,303,'2025-02-03','Observation Required'),
+    -> (704,305,'2025-02-05','Hairline Fracture'),
+    -> (705,304,'2025-02-04','Benign');
